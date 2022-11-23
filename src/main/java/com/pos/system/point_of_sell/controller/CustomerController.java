@@ -1,9 +1,11 @@
 package com.pos.system.point_of_sell.controller;
 import com.pos.system.point_of_sell.dto.CustomerDTO;
 import com.pos.system.point_of_sell.dto.request.CustomerSaveRequestDTO;
+import com.pos.system.point_of_sell.dto.request.CustomerUpdateNameSalaryNicRequestDTO;
 import com.pos.system.point_of_sell.dto.request.CustomerUpdateQueryRequestDTO;
 import com.pos.system.point_of_sell.dto.request.CustomerUpdateRequestDTO;
 import com.pos.system.point_of_sell.dto.responce.ResponseActiveCustomerDTO;
+import com.pos.system.point_of_sell.dto.responce.ResponseCustomerSalaryAddressDTO;
 import com.pos.system.point_of_sell.service.CustomerService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +67,7 @@ public class CustomerController {
             path = {"/get-by-active-state"}
     )
     public List<CustomerDTO> getCustomerByActiveState() throws NotFoundException {
-        List<CustomerDTO> getCustomers = customerService.getCustomerByActiveState();
+        List<CustomerDTO> getCustomers = customerService.getAllCustomerByActiveState();
         return getCustomers;
     }
 
@@ -83,6 +85,32 @@ public class CustomerController {
             @PathVariable(value = "id") int id) {
         String updated = customerService.updateCustomerByQuery(customerUpdateQueryRequestDTO,id);
         return updated;
+    }
+    @GetMapping(
+            path = {"/get-all-customers-by-nic/{nic}"}
+    )
+    public CustomerDTO getCustomerByNic(@PathVariable(value = "nic")String nic) throws NotFoundException {
+        CustomerDTO customer = customerService.getCustomerByNic(nic);
+        return  customer;
+    }
+
+    @GetMapping(
+            path = {"/get-salary-address-by-id"},
+            params = {"id"}
+    )
+    public ResponseCustomerSalaryAddressDTO getCustomerSalaryAddressById(@RequestParam(value = "id") int id) throws NotFoundException {
+        ResponseCustomerSalaryAddressDTO responseCustomerSalaryAddressDTO = customerService.getCustomerSalaryAddressById(id);
+        return responseCustomerSalaryAddressDTO;
+    }
+    @PutMapping(
+            path = {"/update-by-id-name-salary-nic/{id}"}
+    )
+    public String updateCustomerByRequestDto(
+            @PathVariable(value = "id")int id,
+            @RequestBody CustomerUpdateNameSalaryNicRequestDTO customerUpdateNameSalaryNicRequestDTO
+    ){
+        String update = customerService.updateCustomerByRequestDto(id,customerUpdateNameSalaryNicRequestDTO);
+        return  update;
     }
 
 }

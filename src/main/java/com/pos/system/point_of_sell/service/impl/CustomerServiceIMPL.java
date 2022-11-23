@@ -2,9 +2,11 @@ package com.pos.system.point_of_sell.service.impl;
 
 import com.pos.system.point_of_sell.dto.CustomerDTO;
 import com.pos.system.point_of_sell.dto.request.CustomerSaveRequestDTO;
+import com.pos.system.point_of_sell.dto.request.CustomerUpdateNameSalaryNicRequestDTO;
 import com.pos.system.point_of_sell.dto.request.CustomerUpdateQueryRequestDTO;
 import com.pos.system.point_of_sell.dto.request.CustomerUpdateRequestDTO;
 import com.pos.system.point_of_sell.dto.responce.ResponseActiveCustomerDTO;
+import com.pos.system.point_of_sell.dto.responce.ResponseCustomerSalaryAddressDTO;
 import com.pos.system.point_of_sell.entity.Customer;
 import com.pos.system.point_of_sell.repositary.CustomerRepo;
 import com.pos.system.point_of_sell.service.CustomerService;
@@ -27,7 +29,7 @@ public class CustomerServiceIMPL implements CustomerService {
     @Autowired
     private ModelMapper modelMapper;
 
-    //@Autowired
+    @Autowired
     private CustomerMapper customerMapper;
 
 
@@ -148,7 +150,7 @@ public class CustomerServiceIMPL implements CustomerService {
     }
 
     @Override
-    public List<CustomerDTO> getCustomerByActiveState() throws NotFoundException {
+    public List<CustomerDTO> getAllCustomerByActiveState() throws NotFoundException {
         List<Customer> customers = customerRepo.findAllByActiveStateEquals(true);
         if (customers.size()!=0){
             List<CustomerDTO> customerDTOS = customerMapper.entityListToDtoList(customers);
@@ -178,4 +180,46 @@ public class CustomerServiceIMPL implements CustomerService {
             return "Update not successful id :"+id;
         }
     }
+
+    @Override
+    public CustomerDTO getCustomerByNic(String nic) throws NotFoundException {
+        Optional<Customer> customer = customerRepo.findByNic(nic);
+        if(customer.isPresent()){
+            CustomerDTO customerDTOS = customerMapper.entityToDto(customer.get());
+            return customerDTOS;
+        }else{
+            throw new NotFoundException("no active customer found found");
+        }
+
+    }
+
+    @Override
+    public ResponseCustomerSalaryAddressDTO getCustomerSalaryAddressById(int id) throws NotFoundException {
+        if(customerRepo.existsById(id)){
+            Customer customer = customerRepo.getById(id);
+            ResponseCustomerSalaryAddressDTO responseCustomerSalaryAddressDTO= customerMapper.entityToCustomerSalaryAddressDTO(customer);
+            return responseCustomerSalaryAddressDTO;
+        }
+        else{
+            throw new NotFoundException("no active customer found found");
+        }
+    }
+
+    @Override
+    public String updateCustomerByRequestDto(int id, CustomerUpdateNameSalaryNicRequestDTO customerUpdateNameSalaryNicRequestDTO) {
+
+        if(customerRepo.existsById(id)){
+
+
+
+            customerRepo.updateCustomerByRequestDto(customerUpdateNameSalaryNicRequestDTO.getCustomerName(),customerUpdateNameSalaryNicRequestDTO.getCustomer_salary(),customerUpdateNameSalaryNicRequestDTO.getNic(),id);
+
+            return "Update successful id :"+id;
+        }
+        else{
+            return "Update not successful id :"+id;
+        }
+    }
+
+
 }
